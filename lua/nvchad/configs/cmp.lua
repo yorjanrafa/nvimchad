@@ -10,26 +10,6 @@ local field_arrangement = {
   atom_colored = { "kind", "abbr", "menu" },
 }
 
-local formatting_style = {
-  -- default fields order i.e completion word + item.kind + item.kind icons
-  fields = field_arrangement[cmp_style] or { "abbr", "kind", "menu" },
-
-  format = function(_, item)
-    local icons = require "nvchad.icons.lspkind"
-    local icon = (cmp_ui.icons and icons[item.kind]) or ""
-
-    if cmp_style == "atom" or cmp_style == "atom_colored" then
-      icon = " " .. icon .. " "
-      item.menu = cmp_ui.lspkind_text and "   (" .. item.kind .. ")" or ""
-      item.kind = icon
-    else
-      icon = cmp_ui.lspkind_text and (" " .. icon .. " ") or icon
-      item.kind = string.format("%s %s", icon, cmp_ui.lspkind_text and item.kind or "")
-    end
-
-    return item
-  end,
-}
 
 local function border(hl_name)
   return {
@@ -56,7 +36,7 @@ local options = {
       scrollbar = false,
     },
     documentation = {
-      border = border "CmpDocBorder",
+      border = "rounded",
       winhighlight = "Normal:CmpDoc",
     },
   },
@@ -66,7 +46,54 @@ local options = {
     end,
   },
 
-  formatting = formatting_style,
+  formatting = {
+      -- default fields order i.e completion word + item.kind + item.kind icons
+      fields = field_arrangement[cmp_style] or { "abbr", "kind", "menu" },
+
+      format = function(entry, item)
+        local KIND_ICONS = {
+          Tailwind = '󰹞󰹞󰹞󰹞󰹞󰹞󰹞󰹞',
+          Color = ' ',
+          -- Class = 7,
+          -- Constant = '󰚞',
+          -- Constructor = 4,
+          -- Enum = 13,
+          -- EnumMember = 20,
+          -- Event = 23,
+          -- Field = 5,
+          -- File = 17,
+          -- Folder = 19,
+          -- Function = 3,
+          -- Interface = 8,
+          -- Keyword = 14,
+          -- Method = 2,
+          -- Module = 9,
+          -- Operator = 24,
+          -- Property = 10,
+          -- Reference = 18,
+          Snippet = " ",
+          -- Struct = 22,
+          -- Text = "",
+          -- TypeParameter = 25,
+          -- Unit = 11,
+          -- Value = 12,
+          -- Variable = 6
+        }
+
+        local icons = require "nvchad.icons.lspkind"
+        local icon = (cmp_ui.icons and icons[item.kind]) or ""
+
+        if cmp_style == "atom" or cmp_style == "atom_colored" then
+          icon = " " .. icon .. " "
+          item.menu = cmp_ui.lspkind_text and "   (" .. item.kind .. ")" or ""
+        else
+          icon = cmp_ui.lspkind_text and (" " .. icon .. " ") or icon
+          item.kind = string.format("%s %s", icon, cmp_ui.lspkind_text and item.kind or "")
+        end
+
+        return item
+      end,
+    },
 
   mapping = {
     ["<C-p>"] = cmp.mapping.select_prev_item(),
